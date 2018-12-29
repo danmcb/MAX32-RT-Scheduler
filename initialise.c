@@ -32,10 +32,12 @@ void initialise(void){
     
     //first define the initial output value 
     RUN_LED = 0;
+    DEBUG_PIN = 0;
     
     // now set the ports as output
 
     TRISAbits.TRISA3 = 0;   // RUN LED
+    TRISCbits.TRISC2 = 0;   // DEBUG PIN
     
     // Timer 1 (Task Scheduler Ticks)
     T1CONbits.ON = 0;           // timer off
@@ -48,11 +50,14 @@ void initialise(void){
     T1CONbits.ON = 1;           // timer on
     
     // Timer 2 ( for demonstrating debug prints from an ISR)
+    // only used for test/demo tasks.
     T2CONbits.ON = 0;           // timer off
     T2CONbits.TCS = 0;          // use internal clock
-    T2CONbits.TCKPS1 = 1;       // prescale by 64
+    T2CONbits.TCKPS2 = 1;       // prescale by 64
+    T2CONbits.TCKPS1 = 1;       
     T2CONbits.TCKPS0 = 0;       //    => 1.3us @ 48MHz
-    PR2 = 1000;                   // 
+    T2CONbits.T32 = 0;          // 16 bit mode
+    PR2 = 0;                   // set in task in fact
     T2CONbits.TGATE = 0;        // no gating
     TMR2 = 0; 
     
@@ -70,13 +75,13 @@ void initialise(void){
     INTCONbits.MVEC = 1; // multi vector
     INTCONbits.TPC = 0; // no proximity timer
     
-    // T1 interrupt - priority 3 (Task Switcher))
-    IPC1bits.T1IP = 3; // T1 - priority 3
+    // T1 interrupt - priority 1 (Task Switcher))
+    IPC1bits.T1IP = 1; // T1 - priority 1
     IPC1bits.T1IS = 0; // doesn't matter, no groups
     IFS0bits.T1IF = 0; // reset the flag
     IEC0bits.T1IE = 1; // enable ints for T1
-    // T2 interrupt - priority 5 (debug print)
-    IPC2bits.T2IP = 5; // T1 - priority 3
+    // T2 interrupt - priority 2 (for test code)
+    IPC2bits.T2IP = 2; // T1 - priority 2
     IPC2bits.T2IS = 0; // doesn't matter, no groups
     IFS0bits.T2IF = 0; // reset the flag
     IEC0bits.T2IE = 1; // enable ints for T2

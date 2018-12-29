@@ -6,7 +6,7 @@
  *
  */
 
-//#define CRITICAL_SECTION_DI_EI
+#define CRITICAL_SECTION_SYNC
 
 #include "debug_uart.h"
 #include "xprintf.h"
@@ -40,27 +40,23 @@ void init_debug_uart(void){
     xdev_out(debug_buf_put);
 }
 
-uint32_t get_debug_buf_head(void){
-    return debug_buf.head & DEBUG_PRINT_BUFFER_MASK;
-}
-
 void debug_buf_put(uint8_t c){
     if ( ((debug_buf.head + 1) & DEBUG_PRINT_BUFFER_MASK) == debug_buf.tail){
         return; // buffer is full
     } else {
         // critical section
-#ifdef CRITICAL_SECTION_DI_EI
-        /* Critical section by turning ints off */
-        __builtin_disable_interrupts();
-        debug_buf.buffer[debug_buf.head] = c;
-        debug_buf.head++;
-        debug_buf.head &= DEBUG_PRINT_BUFFER_MASK;
-        __builtin_enable_interrupts();
-#else 
-        /* Critical section using LL/SC pair (ints are always on)*/
-        uint32_t * p = &debug_buf.head;
+#ifdef CRITICAL_SECTION_SYNC
+        /* Critical section using LL/SC pair. This is the optimal setting. */
+        volatile uint32_t * p = &debug_buf.head;
         uint32_t h = __sync_fetch_and_add(p, 1);
         debug_buf.buffer[h & DEBUG_PRINT_BUFFER_MASK] = c;
+#else 
+        /* no critical section for test purposes - or you can uncomment the 
+         enable/disable ints for critical section at timing */
+        //__builtin_disable_interrupts();
+        debug_buf.buffer[(debug_buf.head & DEBUG_PRINT_BUFFER_MASK)] = c;
+        debug_buf.head++;
+        //__builtin_enable_interrupts();
 #endif
         
     }

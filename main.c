@@ -51,13 +51,13 @@ int32_t main(int32_t argc, char** argv) {
     __builtin_disable_interrupts();
     initialise();
     init_scheduler();
-    xprintf("\r\nPICKIT MAX32 RT Scheduler\r\n");
-    xprintf("=========================\r\n");
+    xprintf("\r\nMAX32 RT Scheduler V1.0\r\n");
+    xprintf("=======================\r\n");
     __builtin_enable_interrupts();
 
     while(1){
       run_scheduler();
-      while (!task_scheduler_flag) {
+      while (!timer_tick()) {
           debug_print_char();
       }
     }
