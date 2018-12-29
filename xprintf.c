@@ -20,7 +20,6 @@
 
 #include "xprintf.h"
 
-
 #if _USE_XFUNC_OUT
 #include <stdarg.h>
 void (*xfunc_out)(uint8_t);	/* Pointer to the output stream */

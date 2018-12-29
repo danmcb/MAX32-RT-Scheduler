@@ -8,6 +8,7 @@
 
 #include "scheduler.h"
 #include "initialise.h"
+#include "debug_uart.h"
 
 #define NUM_TASKS 6
 task tasks[NUM_TASKS]; // task list
@@ -34,11 +35,11 @@ void init_scheduler(void){
     tasks[2].TickFct = &task_blink_off;
     // start T2 which will raise an int and print something, every 10 secs
     tasks[3].elapsedTime = 0;
-    tasks[3].period = 2000;
+    tasks[3].period = 200;
     tasks[3].TickFct = &task_start_print_timer; 
     // just print a boring message every two secs
     tasks[4].elapsedTime = 0;
-    tasks[4].period = 400;
+    tasks[4].period = 200;
     tasks[4].TickFct = &task_print_two_secs; 
     // monitor system worst case load (used to control blink LED)
     tasks[5].elapsedTime = 0;
@@ -85,7 +86,13 @@ void task_blink_off(void){
 
 void task_start_print_timer(void){
     /* just start timer 2 */
+    static uint32_t interval = 100;
     TMR2 = 0; 
+    PR2 = interval;
+    interval += 100;
+    if (interval > 4000){
+        interval = 0;
+    }
     T2CONbits.ON = 1;
 }
 
@@ -137,7 +144,9 @@ void __ISR(_TIMER_2_VECTOR, IPL5AUTO) Timer2Tick(void){
     /* TIMER 2 just prints a debug message and turns itself off (one-shot timer). 
      * This is just to demonstrate that debug prints can work from ISR's, but 
      * will corrupt debug strings prints from the task scheduler. */
-    xprintf("*TIMER 2*");
+    static uint32_t count = 0;
+    xprintf("*T%d-%d*", count, get_debug_buf_head());
     T2CONbits.ON = 0;           // timer off
+    count++;
     IFS0bits.T2IF = 0; // reset the flag
 }
