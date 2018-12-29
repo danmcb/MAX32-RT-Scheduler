@@ -45,7 +45,8 @@ CREDITS:
  - xprintf() thanks to the excellent Chan (http://elm-chan.org/fsw/strf/xprintf.html)
 
 LICENSING:
-You are free to use this software for any purpose you want, as long as it is a nice one. (Hurting people, animals or the planet we share is not nice.)
+This software is distributed under MIT License.
+In addition - you are free to use this software for any purpose you want, as long as it is a nice one. (Hurting people, animals or the planet we share is not nice.)
 Crediting and linking to mcbeeaudio.com and/or mcbeetech.com is appreciated.
 
 THE USUAL DISCLAIMER AND CAVEAT (sigh):
